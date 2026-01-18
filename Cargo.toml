@@ -1,0 +1,23 @@
+[workspace]
+members = ["api"]
+resolver = "2"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }
+thiserror = "2.0"
+time = "0.3"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[workspace.lints.rust]
+rust_2018_idioms = "deny"
+# missing_docs = "deny"
+missing_debug_implementations = "deny" # opt out where Debug is really redundant
+future_incompatible = "deny"
+unsafe-code = "deny"
+
+[workspace.lints.clippy]
+unused_async = "deny"

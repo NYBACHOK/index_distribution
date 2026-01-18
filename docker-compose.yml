@@ -1,0 +1,12 @@
+services:
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    environment:
+      LOG_LEVEL: "info"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -s localhost/health" ]
+      interval: 2s
+      timeout: 5s
+      retries: 10
