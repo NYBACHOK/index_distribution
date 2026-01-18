@@ -44,6 +44,12 @@ pub enum RouteError {
     #[error("Failed to find {0}")]
     NotFound(&'static str),
 
+    #[error("Failed to run query. Reason: {0}")]
+    Db(#[from] sqlx::Error),
+
+    #[error(" {0}")]
+    S3(#[from] s3::error::S3Error),
+
     // IO errors
     /// Failed IO
     #[error("Failed IO. Description: {desc}. Err: {err}")]

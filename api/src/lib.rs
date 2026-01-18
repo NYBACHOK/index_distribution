@@ -21,6 +21,8 @@ pub enum StartError {
     Io(#[from] std::io::Error),
     #[error("Failed to setup S3. Reason: {0}")]
     S3(#[from] accessors::bucket::S3Errors),
+    #[error("Failed connect to DB. Reason: {0}")]
+    Sqlx(#[from] sqlx::Error),
     #[error("Can't decode base64. Reason: {0}")]
     DecodeKey(#[from] data_encoding::DecodeError),
     #[error("invalid key. Reason: {0}")]
@@ -37,13 +39,11 @@ pub async fn start_api(
     create_bucket: bool,
     aws_config: Option<AwsClientConfig>,
     rsa_pub_key_base64: String,
+    connection_string: String,
 ) -> Result<(), StartError> {
     let bucket = accessors::bucket::setup_s3(bucket_name, create_bucket, aws_config).await?;
 
-    let jwt_keys =
-        JwtKeys::try_from_pem(data_encoding::BASE64.decode(rsa_pub_key_base64.as_bytes())?)?;
-
-    let state = AppState::try_new(bucket, jwt_keys).await?;
+    let state = AppState::try_new(bucket, rsa_pub_key_base64, connection_string).await?;
 
     let routes = axum::Router::new()
         .route("/create", put(routes::bundle::create))

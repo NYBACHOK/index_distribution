@@ -25,7 +25,7 @@ tower-http = { version = "0.6", features = ["trace", "cors"] }
 # AWS
 rust-s3 = "0.37"
 # sql
-sqlx = { version = "0.8", features = [ "runtime-tokio", "runtime-tokio-rustls", "postgres" ] }
+sqlx = { version = "0.8", features = [ "runtime-tokio", "runtime-tokio-rustls", "postgres", "uuid" ] }
 
 # swagger
 utoipa = { version = "5.3", features = ["axum_extras", "time", "uuid", "url"] }
@@ -33,6 +33,7 @@ utoipa-swagger-ui = { version = "9.0", features = ["axum", "vendored"] }
 
 # types
 mime = "0.3"
+uuid = { version = "1.19", features = [ "v4", "serde" ] }
 
 # other
 thiserror.workspace = true
@@ -42,3 +43,4 @@ tokio = { version = "1.48", features = ["macros", "rt-multi-thread"] }
 zip = "7.0"
 data-encoding = "2.8"
 jsonwebtoken = { version = "10.2", features = ["rust_crypto"]}
+strum = {  version = "0.27", features = [ "derive" ] }

@@ -30,6 +30,10 @@ struct Args {
     /// Content of RSA public key in base64 format
     #[arg(long, env = "RSA_PUB_KEY_BASE64", required = true)]
     rsa_pub_key_base64: String,
+
+    /// Connection string to postgres database
+    #[arg(long, required = false, env = "DB_CONNECTION_STRING")]
+    connection_string: String,
 }
 
 #[tokio::main]
@@ -45,6 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         bucket,
         create_bucket,
         rsa_pub_key_base64,
+        connection_string,
         ..
     } = Args::parse();
 
@@ -55,7 +60,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         _ => None,
     };
 
-    api::start_api(host, &bucket, create_bucket, aws_clonfig, rsa_pub_key_base64).await?;
+    api::start_api(
+        host,
+        &bucket,
+        create_bucket,
+        aws_clonfig,
+        rsa_pub_key_base64,
+        connection_string
+    )
+    .await?;
 
     Ok(())
 }
