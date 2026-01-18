@@ -1,5 +1,6 @@
 use std::net::SocketAddr;
 
+use api::AwsClientConfig;
 use clap::Parser;
 
 #[derive(Debug, Clone, clap::Parser)]
@@ -12,6 +13,19 @@ struct Args {
     /// Verbosity of logs
     #[ arg( long, required = false, default_value_t = tracing::Level::INFO, env = "LOG_LEVEL" ) ]
     log_level: tracing::Level,
+
+    /// Bucket where data is stored
+    #[arg(short, long, env = "S3_BUCKET", required = false)]
+    bucket: String,
+    /// Should create bucket if not exists
+    #[arg(long, required = false, default_value_t = false)]
+    create_bucket: bool,
+    /// Custom endpoint to S3
+    #[arg(long, required = false, env = "AWS_ENDPOINT")]
+    aws_endpoint: Option<String>,
+    /// AWS Region
+    #[arg(long, required = false, env = "AWS_REGION")]
+    region: Option<String>,
 }
 
 #[tokio::main]
@@ -20,12 +34,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let _ = dotenv::dotenv();
 
     let Args {
-        host, log_level, ..
+        host,
+        log_level,
+        aws_endpoint,
+        region,
+        bucket,
+        create_bucket,
+        ..
     } = Args::parse();
 
     setup_logger(log_level);
 
-    api::start_api(host).await?;
+    let aws_clonfig = match (aws_endpoint, region) {
+        (endpoint, Some(region)) => Some(AwsClientConfig { endpoint, region }),
+        _ => None,
+    };
+
+    api::start_api(host, &bucket, create_bucket, aws_clonfig).await?;
 
     Ok(())
 }

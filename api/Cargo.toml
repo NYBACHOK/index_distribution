@@ -17,16 +17,19 @@ tracing-subscriber.workspace = true
 clap = { version = "4.5", features = ["derive", "env"] }
 # web
 axum = { version = "0.8", features = [] }
-axum-extra = { version = "0.12", features = ["cookie"] }
+# axum-extra = { version = "0.12", features = ["cookie"] }
 tower-http = { version = "0.6", features = ["trace", "cors"] }
 # futures = "0.3"
+
+# AWS
+rust-s3 = "0.37"
 
 # swagger
 utoipa = { version = "5.3", features = ["axum_extras", "time", "uuid", "url"] }
 utoipa-swagger-ui = { version = "9.0", features = ["axum", "vendored"] }
 
 # types
-mime = "0.3"
+# mime = "0.3"
 
 # other
 thiserror.workspace = true
