@@ -9,9 +9,7 @@ use crate::errors::RouteError;
 pub const FILE_LIMIT: usize = 100_000_000; // 100mb more than enough for static website...
 
 #[derive(Debug)]
-pub struct ZipFile {
-    file: ZipArchive<Cursor<Bytes>>,
-}
+pub struct ZipFile(pub ZipArchive<Cursor<Bytes>>);
 
 impl<S> axum::extract::FromRequest<S> for ZipFile
 where
@@ -49,6 +47,6 @@ where
             return Err(RouteError::Rejection("empty archive".to_string()));
         }
 
-        Ok(Self { file: zip })
+        Ok(Self(zip))
     }
 }

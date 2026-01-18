@@ -26,6 +26,10 @@ struct Args {
     /// AWS Region
     #[arg(long, required = false, env = "AWS_REGION")]
     region: Option<String>,
+
+    /// Content of RSA public key in base64 format
+    #[arg(long, env = "RSA_PUB_KEY_BASE64", required = true)]
+    rsa_pub_key_base64: String,
 }
 
 #[tokio::main]
@@ -40,6 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         region,
         bucket,
         create_bucket,
+        rsa_pub_key_base64,
         ..
     } = Args::parse();
 
@@ -50,7 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         _ => None,
     };
 
-    api::start_api(host, &bucket, create_bucket, aws_clonfig).await?;
+    api::start_api(host, &bucket, create_bucket, aws_clonfig, rsa_pub_key_base64).await?;
 
     Ok(())
 }
