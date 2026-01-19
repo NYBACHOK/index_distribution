@@ -15,6 +15,9 @@ mod state;
 
 pub use accessors::bucket::AwsClientConfig;
 
+const KEY_HEADER_NAME: &str = "SALLAR_AUTH";
+const KEY_TO_MOBILE_APP: &str = "TODO";
+
 #[derive(Debug, thiserror::Error)]
 pub enum StartError {
     #[error("Failed to start server. Reason: {0}")]
