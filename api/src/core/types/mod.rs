@@ -10,6 +10,7 @@
     serde::Serialize,
     strum::EnumString,
     strum::AsRefStr,
+    sqlx::Type,
 )]
 pub enum BundleKind {
     #[strum(to_string = "static")]

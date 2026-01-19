@@ -50,6 +50,7 @@ pub async fn start_api(
         .route("/upload", post(routes::bundle::upload))
         .route("/deploy", post(routes::bundle::deploy))
         .route("/deploy", get(routes::bundle::deploy_status))
+        .route("/list", get(routes::bundle::list))
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .with_state(state);
 

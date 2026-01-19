@@ -4,7 +4,7 @@ mod deploy_status;
 mod list;
 mod upload;
 
-pub use self::{create::*, deploy::*, deploy_status::*, upload::*};
+pub use self::{create::*, deploy::*, deploy_status::*, list::*, upload::*};
 
 #[derive(serde::Deserialize, serde::Serialize)]
 pub struct BundleQuery {
