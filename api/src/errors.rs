@@ -53,6 +53,9 @@ pub enum RouteError {
     #[error("Failed connection to cache. Reason: {0}")]
     Redis(#[from] redis::RedisError),
 
+    #[error("Failed communication with node. Reason: {0}")]
+    Reqwest(#[from] reqwest::Error),
+
     // IO errors
     /// Failed IO
     #[error("Failed IO. Description: {desc}. Err: {err}")]

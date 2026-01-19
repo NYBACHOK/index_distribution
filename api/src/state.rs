@@ -8,6 +8,7 @@ pub struct AppState {
     pub bucket: Arc<Box<s3::Bucket>>,
     pub cache: redis::Client,
     pub keys: Arc<JwtKeys>,
+    pub http_client: reqwest::Client,
     node_manager_password: Arc<&'static str>,
 }
 
@@ -34,6 +35,7 @@ impl AppState {
             pool,
             cache,
             node_manager_password,
+            http_client: reqwest::Client::new(),
         })
     }
 

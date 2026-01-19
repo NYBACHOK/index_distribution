@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::{
     errors::RouteError,
-    routes::{NODE_PREFIX, node::NodeManager},
+    routes::node::{Node, NodeManager},
     state::AppState,
     utils::json_extractor::Json,
 };
@@ -21,7 +21,9 @@ pub async fn disconnect(
 ) -> Result<(), RouteError> {
     let mut connection = state.cache.get_multiplexed_async_connection().await?;
 
-    connection.del(format!("{NODE_PREFIX}:{}", id)).await?;
+    connection
+        .del(format!("{}:{}", Node::KEY_PREFIX, id))
+        .await?;
 
     // TODO: trigger redeploy
 

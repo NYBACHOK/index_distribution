@@ -3,6 +3,8 @@ mod disconnect;
 
 use axum::{extract::FromRequestParts, http::StatusCode};
 use axum_extra::extract::CookieJar;
+use url::Url;
+use uuid::Uuid;
 
 use crate::state::AppState;
 
@@ -13,6 +15,20 @@ pub enum NodeKind {
     Mobile,
     Web,
     Dekstop,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct Node {
+    pub id: Uuid,
+    /// Public url for already tunneled node
+    pub url: Url,
+    pub kind: NodeKind,
+}
+
+impl Node {
+    pub const KEY_PREFIX: &str = "node";
+
+    pub const DEPLOYED_BUNDLE_CACHE_PREFIX: &str = "bundle_deployment";
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
