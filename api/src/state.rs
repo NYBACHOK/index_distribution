@@ -1,6 +1,8 @@
 use std::{ops::Deref, sync::Arc};
 
-use crate::{StartError, utils::jwt_auth::JwtKeys};
+use reqwest::header;
+
+use crate::{KEY_HEADER_NAME, StartError, utils::jwt_auth::JwtKeys};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -19,6 +21,7 @@ impl AppState {
         connection_string: String,
         redis_connection_string: String,
         node_manager_password: String,
+        app_password: String,
     ) -> Result<Self, StartError> {
         let pool = sqlx::postgres::PgPool::connect(connection_string.as_ref()).await?;
 
@@ -29,13 +32,25 @@ impl AppState {
 
         let node_manager_password = Arc::new(&*node_manager_password.leak());
 
+        let mut auth_header = header::HeaderValue::from_str(&app_password)
+            .expect("invalid value to app password  header");
+        auth_header.set_sensitive(true);
+
+        let mut headers = header::HeaderMap::new();
+        headers.insert(KEY_HEADER_NAME, auth_header);
+
+        let http_client = reqwest::ClientBuilder::new()
+            .default_headers(headers)
+            .build()
+            .unwrap();
+
         Ok(Self {
             bucket: Arc::new(bucket),
             keys: Arc::new(jwt_keys),
             pool,
             cache,
             node_manager_password,
-            http_client: reqwest::Client::new(),
+            http_client,
         })
     }
 

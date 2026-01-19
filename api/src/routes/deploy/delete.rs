@@ -5,7 +5,6 @@ use redis::AsyncTypedCommands;
 use uuid::Uuid;
 
 use crate::{
-    KEY_HEADER_NAME, KEY_TO_MOBILE_APP,
     errors::RouteError,
     routes::{UuidQuery, node::Node},
     state::AppState,
@@ -49,7 +48,6 @@ pub async fn delete(
     state
         .http_client
         .delete(url.join("/bundle").unwrap())
-        .header(KEY_HEADER_NAME, KEY_TO_MOBILE_APP)
         .send()
         .await?;
 

@@ -4,7 +4,6 @@ use axum::extract::State;
 use redis::AsyncTypedCommands;
 
 use crate::{
-    KEY_HEADER_NAME, KEY_TO_MOBILE_APP,
     errors::RouteError,
     routes::{deploy::DeployBundleModel, node::Node},
     state::AppState,
@@ -48,7 +47,6 @@ pub async fn create(
     state
         .http_client
         .put(url.join("/bundle").unwrap())
-        .header(KEY_HEADER_NAME, KEY_TO_MOBILE_APP)
         .body(serde_json::json!({ "bundle_link" : archive}).to_string())
         .send()
         .await?;

@@ -16,7 +16,6 @@ mod state;
 pub use accessors::bucket::AwsClientConfig;
 
 const KEY_HEADER_NAME: &str = "SALLAR_AUTH";
-const KEY_TO_MOBILE_APP: &str = "TODO";
 
 #[derive(Debug, thiserror::Error)]
 pub enum StartError {
@@ -47,6 +46,7 @@ pub async fn start_api(
     connection_string: String,
     redis_connection_string: String,
     node_manager_password: String,
+    app_password: String,
 ) -> Result<(), StartError> {
     let bucket = accessors::bucket::setup_s3(bucket_name, create_bucket, aws_config).await?;
 
@@ -56,6 +56,7 @@ pub async fn start_api(
         connection_string,
         redis_connection_string,
         node_manager_password,
+        app_password,
     )
     .await?;
 

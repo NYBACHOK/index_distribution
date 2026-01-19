@@ -42,6 +42,10 @@ struct Args {
     /// Password for node manager for managing nodes
     #[arg(long, required = true, env = "NODE_MANAGER_PASSWORD")]
     node_manager_password: String,
+
+    /// Password for accessing nodes(apps)
+    #[arg(long, required = true, env = "APP_PASSWORD")]
+    app_password: String,
 }
 
 #[tokio::main]
@@ -60,6 +64,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         connection_string,
         redis_connection_string,
         node_manager_password,
+        app_password,
         ..
     } = Args::parse();
 
@@ -79,6 +84,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         connection_string,
         redis_connection_string,
         node_manager_password,
+        app_password,
     )
     .await?;
 
