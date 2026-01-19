@@ -50,6 +50,9 @@ pub enum RouteError {
     #[error(" {0}")]
     S3(#[from] s3::error::S3Error),
 
+    #[error("Failed connection to cache. Reason: {0}")]
+    Redis(#[from] redis::RedisError),
+
     // IO errors
     /// Failed IO
     #[error("Failed IO. Description: {desc}. Err: {err}")]

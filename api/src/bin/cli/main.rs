@@ -34,6 +34,14 @@ struct Args {
     /// Connection string to postgres database
     #[arg(long, required = false, env = "DB_CONNECTION_STRING")]
     connection_string: String,
+
+    /// Connection string to cache instance
+    #[arg(long, required = false, default_value_t = String::from("valkey://localhost:6379"), env = "REDIS_CONNECTION_STRING")]
+    redis_connection_string: String,
+
+    /// Password for node manager for managing nodes
+    #[arg(long, required = true, env = "NODE_MANAGER_PASSWORD")]
+    node_manager_password: String,
 }
 
 #[tokio::main]
@@ -50,6 +58,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         create_bucket,
         rsa_pub_key_base64,
         connection_string,
+        redis_connection_string,
+        node_manager_password,
         ..
     } = Args::parse();
 
@@ -66,7 +76,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         create_bucket,
         aws_clonfig,
         rsa_pub_key_base64,
-        connection_string
+        connection_string,
+        redis_connection_string,
+        node_manager_password,
     )
     .await?;
 

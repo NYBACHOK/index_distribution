@@ -3,7 +3,7 @@ mod routes;
 mod utils;
 use std::net::SocketAddr;
 
-use axum::routing::{get, post, put};
+use axum::routing::{delete, get, post, put};
 use tower_http::cors::CorsLayer;
 
 use crate::state::AppState;
@@ -23,6 +23,8 @@ pub enum StartError {
     S3(#[from] accessors::bucket::S3Errors),
     #[error("Failed connect to DB. Reason: {0}")]
     Sqlx(#[from] sqlx::Error),
+    #[error("Failed to connect to Redis. Reason: {0}")]
+    Redis(#[from] redis::RedisError),
     #[error("Can't decode base64. Reason: {0}")]
     DecodeKey(#[from] data_encoding::DecodeError),
     #[error("invalid key. Reason: {0}")]
@@ -40,17 +42,38 @@ pub async fn start_api(
     aws_config: Option<AwsClientConfig>,
     rsa_pub_key_base64: String,
     connection_string: String,
+    redis_connection_string: String,
+    node_manager_password: String,
 ) -> Result<(), StartError> {
     let bucket = accessors::bucket::setup_s3(bucket_name, create_bucket, aws_config).await?;
 
-    let state = AppState::try_new(bucket, rsa_pub_key_base64, connection_string).await?;
+    let state = AppState::try_new(
+        bucket,
+        rsa_pub_key_base64,
+        connection_string,
+        redis_connection_string,
+        node_manager_password,
+    )
+    .await?;
 
-    let routes = axum::Router::new()
+    let bundle_routes = axum::Router::new()
         .route("/create", put(routes::bundle::create))
         .route("/upload", post(routes::bundle::upload))
-        .route("/deploy", post(routes::bundle::deploy))
-        .route("/deploy", get(routes::bundle::deploy_status))
-        .route("/list", get(routes::bundle::list))
+        .route("/list", get(routes::bundle::list));
+
+    let node_routes = axum::Router::new()
+        .route("/connect", put(routes::node::connect))
+        .route("/disconnect", delete(routes::node::disconnect));
+
+    let deploy_routes = axum::Router::new()
+        .route("/create", put(routes::deploy::create))
+        .route("/delete", delete(routes::deploy::delete))
+        .route("/status", get(routes::deploy::status));
+
+    let routes = axum::Router::new()
+        .nest("/bundle", bundle_routes)
+        .nest("/node", node_routes)
+        .nest("/deploy", deploy_routes)
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .with_state(state);
 
