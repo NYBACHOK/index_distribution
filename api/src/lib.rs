@@ -6,7 +6,7 @@ use std::net::SocketAddr;
 use axum::routing::{get, post, put};
 use tower_http::cors::CorsLayer;
 
-use crate::{state::AppState, utils::jwt_auth::JwtKeys};
+use crate::state::AppState;
 
 mod accessors;
 mod errors;

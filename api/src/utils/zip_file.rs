@@ -1,6 +1,6 @@
 use std::io::Cursor;
 
-use axum::{RequestExt, body::Bytes, http::header::CONTENT_TYPE};
+use axum::{RequestExt, http::header::CONTENT_TYPE};
 use headers::ContentType;
 use zip::ZipArchive;
 
@@ -9,7 +9,7 @@ use crate::errors::RouteError;
 pub const FILE_LIMIT: usize = 100_000_000; // 100mb more than enough for static website...
 
 #[derive(Debug)]
-pub struct ZipFile(pub ZipArchive<Cursor<Bytes>>);
+pub struct ZipFile(pub ZipArchive<Cursor<Vec<u8>>>);
 
 impl<S> axum::extract::FromRequest<S> for ZipFile
 where
@@ -38,7 +38,7 @@ where
                 RouteError::Rejection(format!("failed to extract request body. Error: {e}"))
             })?;
 
-        let cursor = Cursor::new(body);
+        let cursor = Cursor::new(body.to_vec());
 
         let zip = ZipArchive::new(cursor)
             .map_err(|e| RouteError::Rejection(format!("invalid archive. Error: {e}")))?;

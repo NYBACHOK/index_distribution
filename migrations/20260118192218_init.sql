@@ -8,12 +8,10 @@ create table bundles (
     id uuid default uuid_generate_v4(),
     is_uploaded bool not null default(false),
     is_deployed bool not null default(false),
-    bundle_version integer not null default(0),
-    sha text null,
-    owner text not null, -- TODO: better way for ownership check?
+    owner text not null,
     kind text not null references bundle_kinds(kind),
 
-    -- TODO: preferences for nodes
+    -- TODO: preferences for nodes and other options?
 
     primary key (id)
 );
