@@ -22,7 +22,6 @@ pub enum BundleKind {
 }
 
 #[derive(Debug)]
-pub struct RedeployTask{
-    pub bundle_id : Uuid,
-    pub node_id : Uuid,
+pub struct RedeployTask {
+    pub bundle_id: Uuid,
 }

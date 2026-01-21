@@ -13,7 +13,10 @@ pub async fn delete(
     State(state): State<AppState>,
     Query(UuidQuery { id: bundle_id }): Query<UuidQuery>,
 ) -> Result<(), RouteError> {
-    let node_id = state.cache.deployed_bundle(FindBy::Bundle(bundle_id)).await?;
+    let node_id = state
+        .cache
+        .deployed_bundle(FindBy::Bundle(bundle_id))
+        .await?;
 
     let Node { url, .. } = state.cache.node(node_id).await?;
 
@@ -27,7 +30,7 @@ pub async fn delete(
 
     state
         .http_client
-        .delete(url.join("/bundle").unwrap())
+        .delete(url.join("/bundle").expect("valid url"))
         .send()
         .await?
         .error_for_status()?;

@@ -24,7 +24,6 @@ pub struct Node {
     pub url: Url,
     pub kind: NodeKind,
 }
- 
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NodeManager;

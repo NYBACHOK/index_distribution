@@ -30,15 +30,15 @@ pub trait CacheAccessor {
     async fn deployed_bundle_del_by(&self, by: FindBy) -> Result<Uuid, RouteError>;
 }
 
-fn node_key(id: Uuid) -> String {
+pub fn node_key(id: Uuid) -> String {
     format!("{}:{}", KEY_PREFIX, id)
 }
 
-fn deployed_bundle_key(id: Uuid) -> String {
+pub fn deployed_bundle_key(id: Uuid) -> String {
     format!("{}:{}", DEPLOYED_BUNDLE_CACHE_PREFIX, id)
 }
 
-fn deployed_node_key(id: Uuid) -> String {
+pub fn deployed_node_key(id: Uuid) -> String {
     format!("{}:{}", DEPLOYED_NODE_CACHE_PREFIX, id)
 }
 
