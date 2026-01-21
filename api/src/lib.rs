@@ -6,7 +6,7 @@ use std::net::SocketAddr;
 use axum::routing::{delete, get, post, put};
 use tower_http::cors::CorsLayer;
 
-use crate::state::AppState;
+use crate::{core::deploy::start_redeploy_task, state::AppState};
 
 mod accessors;
 mod errors;
@@ -51,6 +51,8 @@ pub async fn start_api(
     let bucket = accessors::bucket::setup_s3(bucket_name, create_bucket, aws_config).await?;
 
     let (sender, receiver) = tokio::sync::mpsc::channel(10);
+
+    start_redeploy_task(receiver);
 
     let state = AppState::try_new(
         bucket,
