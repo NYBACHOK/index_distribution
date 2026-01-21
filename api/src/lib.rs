@@ -50,6 +50,8 @@ pub async fn start_api(
 ) -> Result<(), StartError> {
     let bucket = accessors::bucket::setup_s3(bucket_name, create_bucket, aws_config).await?;
 
+    let (sender, receiver) = tokio::sync::mpsc::channel(10);
+
     let state = AppState::try_new(
         bucket,
         rsa_pub_key_base64,
@@ -57,6 +59,7 @@ pub async fn start_api(
         redis_connection_string,
         node_manager_password,
         app_password,
+        sender,
     )
     .await?;
 

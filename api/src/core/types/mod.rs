@@ -18,3 +18,8 @@ pub enum BundleKind {
     #[strum(to_string = "nodejs")]
     NodeJS,
 }
+
+#[derive(Debug)]
+pub struct RedeployTask{
+
+}

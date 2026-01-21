@@ -24,12 +24,7 @@ pub struct Node {
     pub url: Url,
     pub kind: NodeKind,
 }
-
-impl Node {
-    pub const KEY_PREFIX: &str = "node";
-
-    pub const DEPLOYED_BUNDLE_CACHE_PREFIX: &str = "bundle_deployment";
-}
+ 
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NodeManager;

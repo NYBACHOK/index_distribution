@@ -2,7 +2,7 @@ use std::{ops::Deref, sync::Arc};
 
 use reqwest::header;
 
-use crate::{KEY_HEADER_NAME, StartError, utils::jwt_auth::JwtKeys};
+use crate::{KEY_HEADER_NAME, StartError, core::types::RedeployTask, utils::jwt_auth::JwtKeys};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -11,6 +11,7 @@ pub struct AppState {
     pub cache: redis::Client,
     pub keys: Arc<JwtKeys>,
     pub http_client: reqwest::Client,
+    pub redeploy_chanel : tokio::sync::mpsc::Sender<RedeployTask>,
     node_manager_password: Arc<&'static str>,
 }
 
@@ -22,6 +23,7 @@ impl AppState {
         redis_connection_string: String,
         node_manager_password: String,
         app_password: String,
+        redeploy_chanel : tokio::sync::mpsc::Sender<RedeployTask>,
     ) -> Result<Self, StartError> {
         let pool = sqlx::postgres::PgPool::connect(connection_string.as_ref()).await?;
 
@@ -51,6 +53,7 @@ impl AppState {
             cache,
             node_manager_password,
             http_client,
+            redeploy_chanel,
         })
     }
 

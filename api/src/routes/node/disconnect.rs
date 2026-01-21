@@ -1,12 +1,9 @@
 use axum::extract::State;
-use redis::AsyncTypedCommands;
 use uuid::Uuid;
 
 use crate::{
-    errors::RouteError,
-    routes::node::{Node, NodeManager},
-    state::AppState,
-    utils::json_extractor::Json,
+    accessors::cache::CacheAccessor, core::types::RedeployTask, errors::RouteError,
+    routes::node::NodeManager, state::AppState, utils::json_extractor::Json,
 };
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -19,13 +16,9 @@ pub async fn disconnect(
     State(state): State<AppState>,
     Json(DisconnectNode { id }): Json<DisconnectNode>,
 ) -> Result<(), RouteError> {
-    let mut connection = state.cache.get_multiplexed_async_connection().await?;
+    state.cache.node_del(id).await?;
 
-    connection
-        .del(format!("{}:{}", Node::KEY_PREFIX, id))
-        .await?;
-
-    // TODO: trigger redeploy
+    let _ = state.redeploy_chanel.send(RedeployTask {}).await;
 
     Ok(())
 }
