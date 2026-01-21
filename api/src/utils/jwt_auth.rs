@@ -44,7 +44,7 @@ pub struct UserCredentials {
     // pub iat: usize,
     //   /// Audience
     //   pub aud: String,
-    pub user: String,
+    pub user_id: String,
 }
 
 impl axum::extract::FromRequestParts<AppState> for UserCredentials {

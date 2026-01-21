@@ -31,7 +31,7 @@ pub async fn create(
 
     sqlx::query("update bundles set is_deployed = true where id == $1 and owner == $2")
         .bind(bundle_id)
-        .bind(user.user)
+        .bind(user.user_id)
         .execute(&mut *transaction)
         .await?;
 

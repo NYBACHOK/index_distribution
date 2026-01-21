@@ -1,7 +1,6 @@
 use axum::extract::{Query, State};
 
 use crate::{
-    core::upload::upload_archive_for_bundle,
     errors::RouteError,
     routes::UuidQuery,
     state::AppState,
@@ -14,7 +13,20 @@ pub async fn upload(
     State(state): State<AppState>,
     archive: ZipFile,
 ) -> Result<(), RouteError> {
-    upload_archive_for_bundle(&state.bucket, &state.pool, archive, id, &user.user).await?;
+    let mut transaction = state.pool.begin().await?;
+
+    state
+        .bucket
+        .put_object_stream(&mut archive.0.into_inner(), format!("{id}.zip"))
+        .await?;
+
+    sqlx::query("update bundles set is_uploaded = true where id == $1 and owner == $2")
+        .bind(id)
+        .bind(user.user_id)
+        .execute(&mut *transaction)
+        .await?;
+
+    transaction.commit().await?;
 
     Ok(())
 }

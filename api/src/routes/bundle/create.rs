@@ -1,8 +1,9 @@
 use axum::extract::State;
+use sqlx::FromRow;
 use uuid::Uuid;
 
 use crate::{
-    core::{create::create_bundle_record, types::BundleKind},
+    core::types::BundleKind,
     errors::RouteError,
     state::AppState,
     utils::{json_extractor::Json, jwt_auth::UserCredentials},
@@ -18,12 +19,26 @@ pub struct CreateBundleResponse {
     id: Uuid,
 }
 
+#[derive(FromRow)]
+struct Record {
+    id: Uuid,
+}
+
 pub async fn create(
     user: UserCredentials,
     State(state): State<AppState>,
     Json(CreateBundleRequest { kind }): Json<CreateBundleRequest>,
 ) -> Result<axum::Json<CreateBundleResponse>, RouteError> {
-    let id = create_bundle_record(&user, kind, &state.pool).await?;
+    let mut transaction = state.pool.begin().await?;
 
-    Ok(axum::Json(CreateBundleResponse { id }))
+    let record: Record =
+        sqlx::query_as("insert into bundles (owner, kind) values ($1, $2) returning id;")
+            .bind(&user.user_id)
+            .bind(kind.as_ref())
+            .fetch_one(&mut *transaction)
+            .await?;
+
+    transaction.commit().await?;
+
+    Ok(axum::Json(CreateBundleResponse { id: record.id }))
 }

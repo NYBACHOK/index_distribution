@@ -23,7 +23,7 @@ pub async fn list(
     let items: Vec<Bundle> = sqlx::query_as(
         "select b.is_uploaded, b.is_deployed, b.kind from bundles b where b.owner == $1",
     )
-    .bind(user.user)
+    .bind(user.user_id)
     .fetch_all(&state.pool)
     .await?;
 
