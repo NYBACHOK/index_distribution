@@ -1,7 +1,7 @@
 use axum::extract::{Query, State};
 
 use crate::{
-    accessors::cache::CacheAccessor,
+    accessors::cache::{CacheAccessor, FindBy},
     errors::RouteError,
     routes::{UuidQuery, node::Node},
     state::AppState,
@@ -13,7 +13,10 @@ pub async fn status(
     State(state): State<AppState>,
     Query(UuidQuery { id: bundle_id }): Query<UuidQuery>,
 ) -> Result<String, RouteError> {
-    let node_id = state.cache.deployed_bundle_node_id(bundle_id).await?;
+    let node_id = state
+        .cache
+        .deployed_bundle(FindBy::Bundle(bundle_id))
+        .await?;
 
     let Node { url, .. } = state.cache.node(node_id).await?;
 

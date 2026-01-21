@@ -16,6 +16,7 @@ pub async fn send_bundle_url(
     bundle_id: Uuid,
     node_id: Uuid,
 ) -> Result<(), RouteError> {
+    // TODO: check that this node is not used
     let archive = state
         .bucket
         .presign_get(

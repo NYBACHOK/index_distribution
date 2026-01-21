@@ -1,3 +1,5 @@
+use uuid::Uuid;
+
 #[derive(
     Debug,
     Clone,
@@ -21,5 +23,6 @@ pub enum BundleKind {
 
 #[derive(Debug)]
 pub struct RedeployTask{
-
+    pub bundle_id : Uuid,
+    pub node_id : Uuid,
 }

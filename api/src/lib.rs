@@ -52,8 +52,6 @@ pub async fn start_api(
 
     let (sender, receiver) = tokio::sync::mpsc::channel(10);
 
-    start_redeploy_task(receiver);
-
     let state = AppState::try_new(
         bucket,
         rsa_pub_key_base64,
@@ -64,6 +62,8 @@ pub async fn start_api(
         sender,
     )
     .await?;
+
+    start_redeploy_task(state.clone(), receiver);
 
     let bundle_routes = axum::Router::new()
         .route("/create", put(routes::bundle::create))
