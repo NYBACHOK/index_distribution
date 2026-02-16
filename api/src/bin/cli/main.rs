@@ -34,6 +34,9 @@ struct Args {
     /// Connection string to postgres database
     #[arg(long, required = false, env = "DB_CONNECTION_STRING")]
     connection_string: String,
+    /// Migrate database if schema needs update
+    #[arg(long, required = false, default_value_t = false)]
+    migrate: bool,
 
     /// Connection string to cache instance
     #[arg(long, required = false, default_value_t = String::from("valkey://localhost:6379"), env = "REDIS_CONNECTION_STRING")]
@@ -65,6 +68,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         redis_connection_string,
         node_manager_password,
         app_password,
+        migrate,
         ..
     } = Args::parse();
 
@@ -79,6 +83,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         host,
         &bucket,
         create_bucket,
+        migrate,
         aws_clonfig,
         rsa_pub_key_base64,
         connection_string,

@@ -25,6 +25,8 @@ pub enum StartError {
     S3(#[from] accessors::bucket::S3Errors),
     #[error("Failed connect to DB. Reason: {0}")]
     Sqlx(#[from] sqlx::Error),
+    #[error("Failed migrate DB schema. Reason: {0}")]
+    Migration(#[from] sqlx::migrate::MigrateError),
     #[error("Failed to connect to Redis. Reason: {0}")]
     Redis(#[from] redis::RedisError),
     #[error("Can't decode base64. Reason: {0}")]
@@ -41,6 +43,7 @@ pub async fn start_api(
     host: SocketAddr,
     bucket_name: &str,
     create_bucket: bool,
+    migrate: bool,
     aws_config: Option<AwsClientConfig>,
     rsa_pub_key_base64: String,
     connection_string: String,
@@ -48,14 +51,16 @@ pub async fn start_api(
     node_manager_password: String,
     app_password: String,
 ) -> Result<(), StartError> {
+    let pool = setup_db(connection_string, migrate).await?;
+
     let bucket = accessors::bucket::setup_s3(bucket_name, create_bucket, aws_config).await?;
 
     let (sender, receiver) = tokio::sync::mpsc::channel(10);
 
     let state = AppState::try_new(
         bucket,
+        pool,
         rsa_pub_key_base64,
-        connection_string,
         redis_connection_string,
         node_manager_password,
         app_password,
@@ -102,4 +107,16 @@ pub async fn start_api(
     axum::serve(tcp_listener, app).await?;
 
     Ok(())
+}
+
+async fn setup_db(connection_string: String, migrate: bool) -> Result<sqlx::PgPool, StartError> {
+    static MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("../migrations/");
+
+    let pool = sqlx::postgres::PgPool::connect(connection_string.as_ref()).await?;
+
+    if migrate {
+        MIGRATOR.run(&pool).await?;
+    }
+
+    Ok(pool)
 }

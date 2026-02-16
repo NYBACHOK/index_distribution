@@ -26,15 +26,13 @@ impl InnerAppState {
 impl AppState {
     pub async fn try_new(
         bucket: Box<s3::Bucket>,
+        pool: sqlx::Pool<sqlx::Postgres>,
         rsa_pub_key_base64: String,
-        connection_string: String,
         redis_connection_string: String,
         node_manager_password: String,
         app_password: String,
         redeploy_chanel: tokio::sync::mpsc::Sender<RedeployTask>,
     ) -> Result<Self, StartError> {
-        let pool = sqlx::postgres::PgPool::connect(connection_string.as_ref()).await?;
-
         let jwt_keys =
             JwtKeys::try_from_pem(data_encoding::BASE64.decode(rsa_pub_key_base64.as_bytes())?)?;
 
