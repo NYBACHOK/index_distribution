@@ -30,7 +30,7 @@ RUN apt-get update -y \
 && apt-get clean -y \
 && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/target/release/api api
+COPY --from=builder /app/target/release/cli api
 
 EXPOSE 5000
 
