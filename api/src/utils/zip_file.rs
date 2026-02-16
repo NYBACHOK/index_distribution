@@ -6,7 +6,7 @@ use zip::ZipArchive;
 
 use crate::errors::RouteError;
 
-pub const FILE_LIMIT: usize = 100_000_000; // 100mb more than enough for static website...
+pub const FILE_LIMIT: usize = 100_000_000; // 100mb more than enough for static website... Okay, it's actually less and I know that
 
 #[derive(Debug)]
 pub struct ZipFile(pub ZipArchive<Cursor<Vec<u8>>>);

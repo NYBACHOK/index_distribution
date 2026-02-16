@@ -54,6 +54,12 @@ impl axum::extract::FromRequestParts<AppState> for UserCredentials {
         parts: &mut axum::http::request::Parts,
         state: &AppState,
     ) -> Result<Self, Self::Rejection> {
+        if cfg!(debug_assertions) {
+            return Ok(UserCredentials {
+                user_id: "DEBUG_USER".to_owned(),
+            });
+        }
+
         let jar = CookieJar::from_request_parts(parts, state)
             .await
             .expect("Infallible error");

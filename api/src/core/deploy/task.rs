@@ -29,7 +29,7 @@ pub fn start_redeploy_task(
                     if let Err(e) = handle_task(state, task).await {
                         tracing::error!("failed redeploy for {bundle_id}. Error: {e}");
                         let _ = set_undeployed(&pool, bundle_id).await
-                            .inspect_err(|e | tracing::error!("failed to update status of deployment which failed to to deploy. Error: {e}"));
+                            .inspect_err(|e | tracing::error!(error = %e, "failed to update status of deployment which failed to to deploy"));
                     }
                 }
             });
