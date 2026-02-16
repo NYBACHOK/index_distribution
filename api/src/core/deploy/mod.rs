@@ -26,12 +26,12 @@ pub async fn send_bundle_url(
         )
         .await?;
 
-    let Node { url, .. } = state.cache.node(node_id).await?;
+    let Node { url, kind, .. } = state.cache.node(node_id).await?;
 
     state
         .http_client
         .put(url.join("/bundle").expect("valid url"))
-        .body(serde_json::json!({ "bundle_link" : archive }).to_string())
+        .body(serde_json::json!({ "bundle_link" : archive, "kind" : kind }).to_string())
         .send()
         .await?;
 
