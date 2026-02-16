@@ -15,10 +15,16 @@ struct Args {
     log_level: tracing::Level,
 
     /// Bucket where data is stored
-    #[arg(short, long, env = "S3_BUCKET", required = false)]
+    #[arg(
+        short,
+        long,
+        env = "S3_BUCKET",
+        default_value_t = String::from("index_bucket" ),
+        required = false
+    )]
     bucket: String,
     /// Should create bucket if not exists
-    #[arg(long, required = false, default_value_t = false)]
+    #[arg(long, required = false, default_value_t = false, env = "BUCKET_CREATE")]
     create_bucket: bool,
     /// Custom endpoint to S3
     #[arg(long, required = false, env = "AWS_ENDPOINT")]
@@ -35,7 +41,7 @@ struct Args {
     #[arg(long, required = false, env = "DB_CONNECTION_STRING")]
     connection_string: String,
     /// Migrate database if schema needs update
-    #[arg(long, required = false, default_value_t = false)]
+    #[arg(long, required = false, default_value_t = false, env = "DB_MIGRATE")]
     migrate: bool,
 
     /// Connection string to cache instance

@@ -1,8 +1,10 @@
-create table bundle_kinds as (
-    kind text not null
+create table bundle_kinds (
+    kind text not null primary key
 );
 
-insert into bundle_kinds (kind) values ('static', 'nodejs');
+insert into bundle_kinds (kind) values ('static'), ('nodejs');
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";  
 
 create table bundles (
     id uuid default uuid_generate_v4(),
