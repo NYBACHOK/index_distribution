@@ -72,6 +72,9 @@ pub enum RouteError {
     /// For errors that should never occur, but happened somehow
     #[error("Unexpected server error. Reason: {0}")]
     Unexpected(String),
+
+    #[error(transparent)]
+    Any(#[from] anyhow::Error),
 }
 
 impl IntoResponse for RouteError {

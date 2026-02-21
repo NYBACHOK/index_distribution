@@ -17,7 +17,7 @@ pub enum NodeKind {
     Dekstop,
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, utoipa::ToSchema)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, utoipa::ToSchema)]
 pub struct Node {
     pub id: Uuid,
     /// Public url for already tunneled node

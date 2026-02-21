@@ -40,7 +40,7 @@ pub fn start_redeploy_task(
 async fn set_undeployed(pool: &sqlx::PgPool, bundle_id: Uuid) -> Result<(), anyhow::Error> {
     let mut transaction = pool.begin().await?;
 
-    sqlx::query("update bundles set is_deployed = true where id == $1")
+    sqlx::query("update bundles set is_deployed = true where id = $1")
         .bind(bundle_id)
         .execute(&mut *transaction)
         .await?;
@@ -52,15 +52,14 @@ async fn handle_task(
     state: AppState,
     RedeployTask { bundle_id }: RedeployTask,
 ) -> Result<(), anyhow::Error> {
-    const MAX_RETRY_COUNT: u8 = 5;
-    let mut retry_counts = 0;
+    tracing::info!(bundle_id = %bundle_id, "Handling deployment task for bundle");
 
     loop {
         let mut connection = state.cache.get_multiplexed_async_connection().await?;
 
         let mut available_node = Option::None;
 
-        for key in connection.keys(KEY_PREFIX).await? {
+        for key in connection.keys(format!("{KEY_PREFIX}:*")).await? {
             let node: Node = serde_json::from_str(
                 &connection
                     .get::<String>(key)
@@ -69,7 +68,7 @@ async fn handle_task(
             )
             .map_err(|_| anyhow!("corrupted data"))?;
 
-            if connection.exists(deployed_node_key(node.id)).await? {
+            if !connection.exists(deployed_node_key(node.id)).await? {
                 let _ = available_node.insert(node);
             }
         }
@@ -77,43 +76,16 @@ async fn handle_task(
         let available_node = match available_node {
             Some(n) => n,
             None => {
+                dbg!("sleeping");
                 tokio::time::sleep(SLEEP_TIME_FOR_NEW_NODE).await;
                 continue;
             }
         };
 
-        super::send_bundle_url(&state, bundle_id, available_node.id).await?;
+        tracing::info!(bundle_id = %bundle_id, available_node_id = %available_node.id, "Found node for bundle");
 
-        loop {
-            retry_counts += 1;
+        super::send_bundle_url(&state, bundle_id, available_node.clone()).await?;
 
-            let response = state
-                .http_client
-                .get(available_node.url.join("/bundle").expect("valid url"))
-                .send()
-                .await
-                .map(|this| this.error_for_status())
-                .flatten();
-
-            let response = match response {
-                Ok(r) => r,
-                Err(_) => continue,
-            };
-
-            let response = match response.text().await {
-                Ok(r) => r,
-                Err(_) => continue,
-            };
-
-            if response.starts_with("STARTED") {
-                return Ok(());
-            }
-
-            if retry_counts > MAX_RETRY_COUNT {
-                return Err(anyhow!(
-                    "exceeded max retries for checking deployment status"
-                ));
-            }
-        }
+        tracing::info!(bundle_id = %bundle_id, available_node_id = %available_node.id, "Send request to bundle");
     }
 }

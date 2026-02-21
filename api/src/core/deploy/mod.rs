@@ -11,12 +11,21 @@ use crate::{
 
 const FILES_AVAILABLE: Duration = Duration::from_hours(1);
 
+#[derive(Debug, serde::Deserialize)]
+struct NodeResponse {
+    status: String,
+    #[allow(dead_code)]
+    message: String,
+}
+
 pub async fn send_bundle_url(
     state: &AppState,
     bundle_id: Uuid,
-    node_id: Uuid,
+    Node { url, kind, id, .. }: Node,
 ) -> Result<(), RouteError> {
-    // TODO: check that this node is not used
+    const MAX_RETRY_COUNT: u8 = 5;
+    let mut retry_counts = 0;
+
     let archive = state
         .bucket
         .presign_get(
@@ -26,16 +35,33 @@ pub async fn send_bundle_url(
         )
         .await?;
 
-    let Node { url, kind, .. } = state.cache.node(node_id).await?;
+    loop {
+        retry_counts += 1;
 
-    state
-        .http_client
-        .put(url.join("/bundle").expect("valid url"))
-        .body(serde_json::json!({ "bundle_link" : archive, "kind" : kind }).to_string())
-        .send()
-        .await?;
+        let response = state
+            .http_client
+            .put(url.join("/bundle").expect("valid url"))
+            .body(serde_json::json!({ "bundle_link" : archive, "kind" : kind }).to_string())
+            .send()
+            .await?
+            .error_for_status()?
+            .json::<NodeResponse>()
+            .await?;
 
-    state.cache.deployed_bundle_set(bundle_id, node_id).await?;
+        if response.status != "success" {
+            if retry_counts > MAX_RETRY_COUNT {
+                Err(anyhow::anyhow!(
+                    "exceeded max retries for checking deployment status"
+                ))?;
+            }
+
+            continue;
+        } else {
+            break;
+        }
+    }
+
+    state.cache.deployed_bundle_set(bundle_id, id).await?;
 
     Ok(())
 }
