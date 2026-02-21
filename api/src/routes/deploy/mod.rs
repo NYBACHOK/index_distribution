@@ -8,6 +8,6 @@ pub use self::{create::*, delete::*, status::*};
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, utoipa::ToSchema)]
 pub struct DeployBundleModel {
-    pub bundle_id: Uuid,
-    pub node_id: Uuid,
+    #[serde(with = "crate::utils::serde::uuid_as_base64")]
+    pub id: Uuid,
 }

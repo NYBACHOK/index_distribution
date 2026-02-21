@@ -1,7 +1,7 @@
 use axum::extract::State;
 
 use crate::{
-    core::deploy::send_bundle_url,
+    core::types::RedeployTask,
     errors::RouteError,
     routes::deploy::DeployBundleModel,
     state::AppState,
@@ -22,17 +22,20 @@ use crate::{
 pub async fn create(
     user: UserCredentials,
     State(state): State<AppState>,
-    Json(DeployBundleModel { bundle_id, node_id }): Json<DeployBundleModel>,
+    Json(DeployBundleModel { id }): Json<DeployBundleModel>,
 ) -> Result<(), RouteError> {
     let mut transaction = state.pool.begin().await?;
 
     sqlx::query("update bundles set is_deployed = true where id = $1 and owner = $2")
-        .bind(bundle_id)
+        .bind(id)
         .bind(user.user_id)
         .execute(&mut *transaction)
         .await?;
 
-    send_bundle_url(&state, bundle_id, node_id).await?;
+    let _ = state
+        .redeploy_chanel
+        .send(RedeployTask { bundle_id: id })
+        .await;
 
     transaction.commit().await?;
 
