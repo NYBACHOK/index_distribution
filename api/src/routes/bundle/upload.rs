@@ -30,7 +30,7 @@ pub async fn upload(
         .put_object_stream(&mut archive.0.into_inner(), format!("{id}.zip"))
         .await?;
 
-    sqlx::query("update bundles set is_uploaded = true where id == $1 and owner == $2")
+    sqlx::query("update bundles set is_uploaded = true where id = $1 and owner = $2")
         .bind(id)
         .bind(user.user_id)
         .execute(&mut *transaction)

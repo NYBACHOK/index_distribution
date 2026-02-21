@@ -16,6 +16,7 @@ pub struct CreateBundleRequest {
 
 #[derive(serde::Serialize, utoipa::ToSchema)]
 pub struct CreateBundleResponse {
+    #[serde(with = "crate::utils::serde::uuid_as_base64")]
     id: Uuid,
 }
 
