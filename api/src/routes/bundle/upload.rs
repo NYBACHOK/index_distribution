@@ -27,7 +27,10 @@ pub async fn upload(
 
     state
         .bucket
-        .put_object_stream(&mut archive.0.into_inner(), format!("{id}.zip"))
+        .put_object_stream(
+            &mut archive.0.into_inner().into_inner().as_slice(),
+            format!("{id}.zip"),
+        )
         .await?;
 
     sqlx::query("update bundles set is_uploaded = true where id = $1 and owner = $2")
