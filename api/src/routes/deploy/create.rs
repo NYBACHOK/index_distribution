@@ -26,7 +26,7 @@ pub async fn create(
 ) -> Result<(), RouteError> {
     let mut transaction = state.pool.begin().await?;
 
-    sqlx::query("update bundles set is_deployed = true where id == $1 and owner == $2")
+    sqlx::query("update bundles set is_deployed = true where id = $1 and owner = $2")
         .bind(bundle_id)
         .bind(user.user_id)
         .execute(&mut *transaction)
