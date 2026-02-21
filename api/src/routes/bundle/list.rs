@@ -8,6 +8,7 @@ use crate::{
 pub struct Bundle {
     pub is_uploaded: bool,
     pub is_deployed: bool,
+    #[sqlx(try_from = "String")]
     pub kind: BundleKind,
 }
 
@@ -29,7 +30,7 @@ pub async fn list(
     State(state): State<AppState>,
 ) -> Result<axum::Json<ListResponse>, RouteError> {
     let items: Vec<Bundle> = sqlx::query_as(
-        "select b.is_uploaded, b.is_deployed, b.kind from bundles b where b.owner == $1",
+        "select b.is_uploaded, b.is_deployed, b.kind from bundles b where b.owner = $1",
     )
     .bind(user.user_id)
     .fetch_all(&state.pool)

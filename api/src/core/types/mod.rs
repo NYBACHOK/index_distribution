@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use uuid::Uuid;
 
 #[derive(
@@ -12,7 +13,6 @@ use uuid::Uuid;
     serde::Serialize,
     strum::EnumString,
     strum::AsRefStr,
-    sqlx::Type,
     utoipa::ToSchema,
 )]
 pub enum BundleKind {
@@ -20,6 +20,14 @@ pub enum BundleKind {
     Static,
     #[strum(to_string = "nodejs")]
     NodeJS,
+}
+
+impl TryFrom<String> for BundleKind {
+    type Error = &'static str;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::from_str(&value).map_err(|_| "invalid kind")
+    }
 }
 
 #[derive(Debug)]
