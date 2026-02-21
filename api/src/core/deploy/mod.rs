@@ -2,6 +2,8 @@ mod task;
 
 use std::time::Duration;
 
+use mime::APPLICATION_JSON;
+use reqwest::header::{CONTENT_LENGTH, CONTENT_TYPE};
 pub use task::*;
 use uuid::Uuid;
 
@@ -35,13 +37,23 @@ pub async fn send_bundle_url(
         )
         .await?;
 
+    // Expose S3 to mobile
+    // let archive = archive.replace(
+    //     "http://localhost:9000",
+    //     "NGROK OR ANY OTHER VARIANT",
+    // );
+
+    let body = serde_json::json!({ "bundle_link" : archive, "kind" : kind }).to_string();
+
     loop {
         retry_counts += 1;
 
         let response = state
             .http_client
             .put(url.join("/bundle").expect("valid url"))
-            .body(serde_json::json!({ "bundle_link" : archive, "kind" : kind }).to_string())
+            .header(CONTENT_TYPE, APPLICATION_JSON.as_ref())
+            .header(CONTENT_LENGTH, body.len())
+            .body(body.clone())
             .send()
             .await?
             .error_for_status()?
