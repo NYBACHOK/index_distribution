@@ -76,7 +76,6 @@ async fn handle_task(
         let available_node = match available_node {
             Some(n) => n,
             None => {
-                dbg!("sleeping");
                 tokio::time::sleep(SLEEP_TIME_FOR_NEW_NODE).await;
                 continue;
             }
