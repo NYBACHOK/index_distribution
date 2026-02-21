@@ -16,7 +16,7 @@ pub struct DisconnectNode {
 }
 
 #[utoipa::path(
-    put,
+    delete,
     path = "/node/disconnect",
     request_body = crate::routes::node::DisconnectNode,
     responses(
@@ -36,7 +36,12 @@ pub async fn disconnect(
         .deployed_bundle_del_by(FindBy::Node(node_id))
         .await?;
 
-    let _ = state.redeploy_chanel.send(RedeployTask { bundle_id }).await;
+    match bundle_id {
+        Some(bundle_id) => {
+            let _ = state.redeploy_chanel.send(RedeployTask { bundle_id }).await;
+        }
+        None => (),
+    }
 
     Ok(())
 }

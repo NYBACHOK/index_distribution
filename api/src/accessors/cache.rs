@@ -27,7 +27,7 @@ pub trait CacheAccessor {
 
     async fn deployed_bundle_set(&self, bundle_id: Uuid, node_id: Uuid) -> Result<(), RouteError>;
 
-    async fn deployed_bundle_del_by(&self, by: FindBy) -> Result<Uuid, RouteError>;
+    async fn deployed_bundle_del_by(&self, by: FindBy) -> Result<Option<Uuid>, RouteError>;
 }
 
 pub fn node_key(id: Uuid) -> String {
@@ -110,7 +110,7 @@ impl CacheAccessor for redis::Client {
         Ok(())
     }
 
-    async fn deployed_bundle_del_by(&self, by: FindBy) -> Result<Uuid, RouteError> {
+    async fn deployed_bundle_del_by(&self, by: FindBy) -> Result<Option<Uuid>, RouteError> {
         let mut connection = self.get_multiplexed_async_connection().await?;
 
         let key = match by {
@@ -118,20 +118,27 @@ impl CacheAccessor for redis::Client {
             FindBy::Node(uuid) => deployed_node_key(uuid),
         };
 
-        let uuid: Uuid = connection
+        dbg!(&key);
+
+        let uuid: Option<Uuid> = connection
             .get_del(key)
             .await?
-            .ok_or(RouteError::NotFound("node or bundle deployment record"))?
-            .parse()
+            .map(|this| this.parse())
+            .transpose()
             .map_err(|_| {
                 RouteError::Unexpected(format!("corrupted data for deployment records in cache"))
             })?;
 
-        match by {
-            FindBy::Bundle(_) => connection.del(deployed_node_key(uuid)).await?,
-            FindBy::Node(_) => connection.del(deployed_bundle_key(uuid)).await?,
-        };
+        match uuid {
+            Some(uuid) => {
+                match by {
+                    FindBy::Bundle(_) => connection.del(deployed_node_key(uuid)).await?,
+                    FindBy::Node(_) => connection.del(deployed_bundle_key(uuid)).await?,
+                };
 
-        Ok(uuid)
+                Ok(Some(uuid))
+            }
+            None => Ok(None),
+        }
     }
 }
