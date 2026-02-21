@@ -118,8 +118,6 @@ impl CacheAccessor for redis::Client {
             FindBy::Node(uuid) => deployed_node_key(uuid),
         };
 
-        dbg!(&key);
-
         let uuid: Option<Uuid> = connection
             .get_del(key)
             .await?
