@@ -7,7 +7,7 @@ use clap::Parser;
 #[non_exhaustive]
 struct Args {
     /// Host to server the server
-    #[ arg( long, required = false,  env = "SERVE_AT", default_value_t = SocketAddr::from( ( [ 127,0,0,1 ], 5000 ) ) ) ]
+    #[ arg( long, required = false,  env = "SERVE_AT", default_value_t = SocketAddr::from( ( [ 0,0,0,0 ], 5000 ) ) ) ]
     host: SocketAddr,
 
     /// Verbosity of logs

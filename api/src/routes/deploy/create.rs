@@ -8,6 +8,17 @@ use crate::{
     utils::{json_extractor::Json, jwt_auth::UserCredentials},
 };
 
+#[utoipa::path(
+    put,
+    path = "/deploy/create",
+    request_body = crate::routes::deploy::DeployBundleModel,
+    responses(
+        (status = 200, description = "Deployed"),
+        (status = 400, description = "Bad request", body = crate::errors::ErrorResponse),
+        (status = 401, description = "Unauthorized", body = crate::errors::ErrorResponse),
+        (status = 500, description = "Server error", body = crate::errors::ErrorResponse),
+    ),
+)]
 pub async fn create(
     user: UserCredentials,
     State(state): State<AppState>,

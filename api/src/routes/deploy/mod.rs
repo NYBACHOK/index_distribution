@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 pub use self::{create::*, delete::*, status::*};
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, utoipa::ToSchema)]
 pub struct DeployBundleModel {
     pub bundle_id: Uuid,
     pub node_id: Uuid,

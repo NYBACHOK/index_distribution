@@ -10,11 +10,20 @@ use crate::{
     utils::json_extractor::Json,
 };
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, utoipa::ToSchema)]
 pub struct DisconnectNode {
     pub id: Uuid,
 }
 
+#[utoipa::path(
+    put,
+    path = "/node/disconnect",
+    request_body = crate::routes::node::DisconnectNode,
+    responses(
+        (status = 200, description = "Disconnected"),
+        (status = 401, description = "Unauthorized", body = crate::errors::ErrorResponse),
+    ),
+)]
 pub async fn disconnect(
     _manager: NodeManager,
     State(state): State<AppState>,

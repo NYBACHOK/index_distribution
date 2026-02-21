@@ -9,12 +9,12 @@ use crate::{
     utils::{json_extractor::Json, jwt_auth::UserCredentials},
 };
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, utoipa::ToSchema)]
 pub struct CreateBundleRequest {
     kind: BundleKind,
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, utoipa::ToSchema)]
 pub struct CreateBundleResponse {
     id: Uuid,
 }
@@ -24,6 +24,17 @@ struct Record {
     id: Uuid,
 }
 
+#[utoipa::path(
+    put,
+    path = "/bundle/create",
+    request_body = crate::routes::bundle::CreateBundleRequest,
+    responses(
+        (status = 200, description = "Bundle created", body = crate::routes::bundle::CreateBundleResponse),
+        (status = 400, description = "Bad request", body = crate::errors::ErrorResponse),
+        (status = 401, description = "Unauthorized", body = crate::errors::ErrorResponse),
+        (status = 500, description = "Server error", body = crate::errors::ErrorResponse),
+    ),
+)]
 pub async fn create(
     user: UserCredentials,
     State(state): State<AppState>,

@@ -7,6 +7,16 @@ use crate::{
     utils::{jwt_auth::UserCredentials, zip_file::ZipFile},
 };
 
+#[utoipa::path(
+    post,
+    path = "/bundle/upload",
+    params(("id" = uuid::Uuid, Query, description = "Bundle id")),
+    responses(
+        (status = 200, description = "Uploaded"),
+        (status = 400, description = "Bad request", body = crate::errors::ErrorResponse),
+        (status = 401, description = "Unauthorized", body = crate::errors::ErrorResponse),
+    ),
+)]
 pub async fn upload(
     user: UserCredentials,
     Query(UuidQuery { id }): Query<UuidQuery>,

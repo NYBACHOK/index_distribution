@@ -13,6 +13,7 @@ use uuid::Uuid;
     strum::EnumString,
     strum::AsRefStr,
     sqlx::Type,
+    utoipa::ToSchema,
 )]
 pub enum BundleKind {
     #[strum(to_string = "static")]

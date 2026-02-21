@@ -10,14 +10,14 @@ use crate::state::AppState;
 
 pub use self::{connect::*, disconnect::*};
 
-#[derive(Debug, Clone, Copy, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, Clone, Copy, serde::Deserialize, serde::Serialize, utoipa::ToSchema)]
 pub enum NodeKind {
     Mobile,
     Web,
     Dekstop,
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, utoipa::ToSchema)]
 pub struct Node {
     pub id: Uuid,
     /// Public url for already tunneled node

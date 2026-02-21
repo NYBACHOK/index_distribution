@@ -4,18 +4,26 @@ use crate::{
     core::types::BundleKind, errors::RouteError, state::AppState, utils::jwt_auth::UserCredentials,
 };
 
-#[derive(Debug, serde::Deserialize, serde::Serialize, sqlx::FromRow)]
+#[derive(Debug, serde::Deserialize, serde::Serialize, sqlx::FromRow, utoipa::ToSchema)]
 pub struct Bundle {
     pub is_uploaded: bool,
     pub is_deployed: bool,
     pub kind: BundleKind,
 }
 
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, serde::Deserialize, serde::Serialize, utoipa::ToSchema)]
 pub struct ListResponse {
     items: Vec<Bundle>,
 }
 
+#[utoipa::path(
+    get,
+    path = "/bundle/list",
+    responses(
+        (status = 200, description = "List bundles", body = crate::routes::bundle::ListResponse),
+        (status = 401, description = "Unauthorized", body = crate::errors::ErrorResponse),
+    ),
+)]
 pub async fn list(
     user: UserCredentials,
     State(state): State<AppState>,

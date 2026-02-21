@@ -8,6 +8,15 @@ use crate::{
     utils::jwt_auth::UserCredentials,
 };
 
+#[utoipa::path(
+    get,
+    path = "/deploy/status",
+    params(("id" = uuid::Uuid, Query, description = "Bundle id")),
+    responses(
+        (status = 200, description = "Node response", body = String),
+        (status = 401, description = "Unauthorized", body = crate::errors::ErrorResponse),
+    ),
+)]
 pub async fn status(
     _user: UserCredentials,
     State(state): State<AppState>,

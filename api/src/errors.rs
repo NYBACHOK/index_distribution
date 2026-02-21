@@ -11,7 +11,7 @@ pub const CLIENT_ERROR_CODES_OFFSET: u16 = 4000;
 pub const SERVER_ERROR_CODES_OFFSET: u16 = 5000;
 
 /// Response with additional information about error
-#[derive(Debug, serde::Serialize, utoipa::ToResponse)]
+#[derive(Debug, serde::Serialize, utoipa::ToResponse, utoipa::ToSchema)]
 pub struct ErrorResponse {
     /// Error message with additional info
     pub message: String,

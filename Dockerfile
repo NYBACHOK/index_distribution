@@ -24,7 +24,7 @@ FROM debian:trixie-slim AS runtime
 WORKDIR /app
 
 RUN apt-get update -y \
-&& apt-get install -y --no-install-recommends curl \
+&& apt-get install -y --no-install-recommends curl ca-certificates \
 # Clean up
 && apt-get autoremove -y \
 && apt-get clean -y \
