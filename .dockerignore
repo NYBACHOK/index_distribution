@@ -1,3 +1,4 @@
-debug
-target
+debug/
+target/
 .env
+.env.example

@@ -1,0 +1,51 @@
+[package]
+name = "api"
+version = "0.1.0"
+edition = "2024"
+
+[lints]
+workspace = true
+
+[dependencies]
+# serialization
+serde.workspace = true
+serde_json.workspace = true
+# logging
+tracing.workspace = true
+tracing-subscriber.workspace = true
+# cli
+clap = { version = "4.5", features = ["derive", "env"] }
+# web
+axum = { version = "0.8", features = [] }
+axum-extra = { version = "0.12", features = ["typed-header", "cookie"] }
+headers = "0.4"
+tower-http = { version = "0.6", features = ["trace", "cors"] }
+# futures = "0.3"
+
+# AWS
+rust-s3 = "0.37"
+# sql
+sqlx = { version = "0.8", features = [ "runtime-tokio", "runtime-tokio-rustls", "postgres", "uuid" ] }
+# redis
+redis = { version = "1.0", features = ["tokio-rustls-comp"] }
+
+# swagger
+utoipa = { version = "5.3", features = ["axum_extras", "time", "uuid", "url"] }
+utoipa-swagger-ui = { version = "9.0", features = ["axum", "vendored"] }
+
+# types
+mime = "0.3"
+uuid = { version = "1.19", features = [ "v4", "serde" ] }
+url = { version = "2.5", features = ["serde"] }
+
+# other
+thiserror.workspace = true
+# used only in debug
+dotenv = "0.15"
+tokio = { version = "1.48", features = ["macros", "rt-multi-thread" ] }
+zip = "7.0"
+data-encoding = "2.8"
+jsonwebtoken = { version = "10.2", features = ["rust_crypto"]}
+strum = {  version = "0.27", features = [ "derive" ] }
+reqwest = { version = "0.13", features = ["json"]}
+anyhow = "1.0"
